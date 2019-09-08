@@ -1,0 +1,10 @@
+---
+applications:
+- name: cff-info-v1
+  memory: 128M
+  path: ../cff-info-app
+  buildpacks: 
+  - binary_buildpack
+  command: ./cff-info-app.linux
+  env:
+    MEMBER_URL: http://members.istio.apps.internal:8080

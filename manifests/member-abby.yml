@@ -1,0 +1,14 @@
+---
+applications:
+- name: member-abby
+  memory: 128M
+  no-route: true
+  path: ../member-app/bin/linux
+  buildpacks: 
+  - binary_buildpack
+  command: ./member-app
+  env:
+    MEMBER_ID: abby
+    MEMBER_NAME: "Abby Kearns"
+    MEMBER_TITLE: "Executive Director"
+    MEMBER_BIO: "Aces"

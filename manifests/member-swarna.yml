@@ -1,0 +1,14 @@
+---
+applications:
+- name: member-swarna
+  memory: 128M
+  no-route: true
+  path: ../member-app/bin/linux
+  buildpacks: 
+  - binary_buildpack
+  command: ./member-app
+  env:
+    MEMBER_ID: swarna
+    MEMBER_NAME: "Swarna Podila"
+    MEMBER_TITLE: "Senior Director, Community"
+    MEMBER_BIO: "Aces"

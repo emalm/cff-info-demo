@@ -1,0 +1,14 @@
+---
+applications:
+- name: member-chip
+  memory: 128M
+  no-route: true
+  path: ../member-app/bin/linux
+  buildpacks: 
+  - binary_buildpack
+  command: ./member-app
+  env:
+    MEMBER_ID: chip
+    MEMBER_NAME: "Chip Childers"
+    MEMBER_TITLE: "CTO"
+    MEMBER_BIO: "Cool guy"
