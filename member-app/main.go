@@ -56,7 +56,7 @@ func main() {
 	logger.Info("exited")
 }
 
-type member struct {
+type Member struct {
 	ID    string `json:"id"`
 	Name  string `json:"name"`
 	Title string `json:"title"`
@@ -65,7 +65,7 @@ type member struct {
 
 type memberHandler struct {
 	logger lager.Logger
-	member member
+	member Member
 }
 
 func NewMemberHandler(logger lager.Logger, m member) http.Handler {
