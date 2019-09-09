@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
-	"strconv"
 
 	"code.cloudfoundry.org/lager"
 
@@ -15,14 +14,15 @@ import (
 )
 
 const (
-	noTLSPort = 8080
+	defaultPort     = "8080"
+	badListenerPort = "9999"
 )
 
 func main() {
 	logger := lager.NewLogger("member")
 	logger.RegisterSink(lager.NewPrettySink(os.Stdout, lager.INFO))
 
-	m := member{
+	m := Member{
 		ID:    os.Getenv("MEMBER_ID"),
 		Name:  os.Getenv("MEMBER_NAME"),
 		Title: os.Getenv("MEMBER_TITLE"),
@@ -31,15 +31,20 @@ func main() {
 
 	handler := NewMemberHandler(logger, m)
 
-	plainHTTPPort := os.Getenv("PORT")
-	if plainHTTPPort == "" {
-		plainHTTPPort = strconv.Itoa(noTLSPort)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
 	}
 
-	plainHTTPServer := http_server.New("0.0.0.0:"+plainHTTPPort, handler)
+	badListener := os.Getenv("BAD_LISTENER") == "true"
+	if badListener {
+		port = badListenerPort
+	}
+
+	server := http_server.New("0.0.0.0:"+port, handler)
 
 	members := grouper.Members{
-		{"plain", plainHTTPServer},
+		{"plain", server},
 	}
 
 	group := grouper.NewOrdered(os.Interrupt, members)
@@ -68,7 +73,7 @@ type memberHandler struct {
 	member Member
 }
 
-func NewMemberHandler(logger lager.Logger, m member) http.Handler {
+func NewMemberHandler(logger lager.Logger, m Member) http.Handler {
 	return &memberHandler{
 		logger: logger.Session("handler"),
 		member: m,
