@@ -10,12 +10,14 @@
 - [x] cff info app with assets
 - [x] cff info app with call to local member source, request info, report as JSON
 - [x] cff info app with call to member app, request info, report as JSON
-- [ ] cff info app with basic web page showing assets, text, metadata
-- [ ] cff info app with styling
+- [x] cff info app with basic web page showing assets, text, metadata
+- [x] cff info app with styling
 - [x] cff info app manifest with basic config
 - [ ] cff info app with parametrized styling
-- [ ] cff info app manifest with basic config
+- [ ] cff info app manifest with fancy styling
 
+
+- [ ] cff info app does something about 503's from local envoy?
 
 
 ### cff info app
@@ -52,10 +54,23 @@ cf map-route cff-info-v1 istio.geordi.malm.co -n cff-info
 
 cf push -f manifests/member-abby.yml
 cf map-route member-abby istio.apps.internal -n members
+cf map-route member-abby istio.geordi.malm.co -n members
+cf map-route member-abby istio.geordi.malm.co -n member-abby
 cf add-network-policy cff-info-v1 --destination-app member-abby --protocol tcp --port 8080
 
 cf push -f manifests/member-chip.yml
 cf map-route member-chip istio.apps.internal -n members
+cf map-route member-chip istio.geordi.malm.co -n members
+cf map-route member-chip istio.geordi.malm.co -n member-chip
 cf add-network-policy cff-info-v1 --destination-app member-chip --protocol tcp --port 8080
 
+cf push -f manifests/member-swarna.yml
+cf map-route member-swarna istio.apps.internal -n members
+cf map-route member-swarna istio.geordi.malm.co -n members
+cf map-route member-swarna istio.geordi.malm.co -n member-swarna
+cf add-network-policy cff-info-v1 --destination-app member-swarna --protocol tcp --port 8080
 
+
+cf remove-network-policy cff-info-v1 --destination-app member-chip --protocol tcp --port 8080
+
+```

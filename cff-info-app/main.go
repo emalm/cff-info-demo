@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"net/http"
 	"os"
 	"strconv"
@@ -83,14 +83,16 @@ func main() {
 }
 
 type randomInfoHandler struct {
-	logger  lager.Logger
-	fetcher MemberFetcher
+	logger    lager.Logger
+	fetcher   MemberFetcher
+	presenter *PagePresenter
 }
 
 func NewRandomInfoHandler(logger lager.Logger, fetcher MemberFetcher) http.Handler {
 	return &randomInfoHandler{
-		logger:  logger.Session("random"),
-		fetcher: fetcher,
+		logger:    logger.Session("random"),
+		fetcher:   fetcher,
+		presenter: NewPagePresenter(),
 	}
 }
 
@@ -102,14 +104,14 @@ func (h randomInfoHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	payload, err := json.Marshal(result)
+	// payload, err := json.Marshal(result)
 
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		h.logger.Error("failed-to-marshal-data", err)
-		return
-	}
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// 	h.logger.Error("failed-to-marshal-data", err)
+	// 	return
+	// }
 
 	w.WriteHeader(http.StatusOK)
-	w.Write(payload)
+	h.presenter.WritePage(h.logger, w, result)
 }

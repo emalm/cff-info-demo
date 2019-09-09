@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
@@ -101,12 +102,19 @@ func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 		Addr:     resp.Request.RemoteAddr,
 	}
 
-	logger.Info("response", lager.Data{"response-headers": resp.Header, "request-addr": resp.Request.RemoteAddr})
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error("readall-failed", err)
+		return FetchResult{}, err
+	}
+
+	logger.Info("response", lager.Data{"body": string(body), "duration": metadata.Duration, "headers": resp.Header, "request-addr": resp.Request.RemoteAddr})
 
 	var member Member
 
-	err = json.NewDecoder(resp.Body).Decode(&member)
+	err = json.Unmarshal(body, &member)
 	if err != nil {
+		logger.Error("unmarshal-failed", err)
 		return FetchResult{}, err
 	}
 
