@@ -65,14 +65,14 @@ p {
   <p>{{.Member.Bio}}</p>
 
 <div class="metadata">
-	<h3>Request Metadata</h3>
+	<h3>Member Request Metadata</h3>
 
 	<table>
 	 <tr><td># Requests</td><td>{{.Metadata.NumRequests}}</td></tr>
 	 <tr><td>Duration</td><td>{{.Metadata.Duration}}</td></tr>
 	 <tr><td>Member URL</td><td>{{.Metadata.URL}}</td></tr>
-	 <tr><td>Resolved IP</td><td>{{.Metadata.ResolvedIP}}</td></tr>
-	 <tr><td>Server IP</td><td>{{.Metadata.ServerIP}}</td></tr>
+	 <tr><td>&minus;&gt; Resolved IP</td><td>{{.Metadata.ResolvedIP}}</td></tr>
+	 <tr><td>&minus;&gt; Server IP</td><td>{{.Metadata.ServerIP}}</td></tr>
 	</table> 
 </div>
 
