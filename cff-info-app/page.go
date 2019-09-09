@@ -66,7 +66,8 @@ p {
 	<table>
 	 <tr><td>Duration</td><td>{{.Metadata.Duration}}</td></tr>
 	 <tr><td>Member URL</td><td>{{.Metadata.URL}}</td></tr>
-	 <tr><td>Remote Address</td><td>{{.Metadata.Addr}}</td></tr>
+	 <tr><td>Connected Address</td><td>{{.Metadata.Addr}}</td></tr>
+	 <tr><td>Server IP</td><td>{{.Metadata.ServerIP}}</td></tr>
 	</table> 
 </div>
 

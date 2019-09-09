@@ -29,7 +29,12 @@ func main() {
 		Bio:   os.Getenv("MEMBER_BIO"),
 	}
 
-	handler := NewMemberHandler(logger, m)
+	ip := os.Getenv("CF_INSTANCE_INTERNAL_IP")
+	if ip == "" {
+		ip = "127.0.0.1"
+	}
+
+	handler := NewMemberHandler(logger, m, ip)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -68,20 +73,28 @@ type Member struct {
 	Bio   string `json:"bio"`
 }
 
-type memberHandler struct {
-	logger lager.Logger
-	member Member
+type Response struct {
+	Member Member `json:"member"`
+	IP     string `json:"ip"`
 }
 
-func NewMemberHandler(logger lager.Logger, m Member) http.Handler {
+type memberHandler struct {
+	logger   lager.Logger
+	response Response
+}
+
+func NewMemberHandler(logger lager.Logger, m Member, ip string) http.Handler {
 	return &memberHandler{
 		logger: logger.Session("handler"),
-		member: m,
+		response: Response{
+			Member: m,
+			IP:     ip,
+		},
 	}
 }
 
 func (h memberHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	buf, err := json.Marshal(h.member)
+	buf, err := json.Marshal(h.response)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		h.logger.Error("failed-to-encode", err)

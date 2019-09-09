@@ -40,10 +40,13 @@
 ### testing
 
 ```
+
 make && ./cff-info-app.darwin
 
 make && MEMBER_URL=https://members.istio.geordi.malm.co ./cff-info-app.darwin
 
+make && MEMBER_ID=foo MEMBER_NAME=Foo PORT=8081 bin/darwin/member-app
+make && MEMBER_URL=http://localhost:8081 ./cff-info-app.darwin
 ```
 
 ### initial skeleton

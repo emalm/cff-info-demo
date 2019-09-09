@@ -18,10 +18,16 @@ type Member struct {
 	Bio   string `json:"bio"`
 }
 
+type Response struct {
+	Member Member `json:"member"`
+	IP     string `json:"ip"`
+}
+
 type Metadata struct {
 	Duration time.Duration
 	URL      string
 	Addr     string
+	ServerIP string
 }
 
 type FetchResult struct {
@@ -110,13 +116,15 @@ func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 
 	logger.Info("response", lager.Data{"body": string(body), "duration": metadata.Duration, "headers": resp.Header, "request-addr": resp.Request.RemoteAddr})
 
-	var member Member
+	var response Response
 
-	err = json.Unmarshal(body, &member)
+	err = json.Unmarshal(body, &response)
 	if err != nil {
 		logger.Error("unmarshal-failed", err)
 		return FetchResult{}, err
 	}
 
-	return FetchResult{Member: member, Metadata: metadata}, nil
+	metadata.ServerIP = response.IP
+
+	return FetchResult{Member: response.Member, Metadata: metadata}, nil
 }
