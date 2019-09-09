@@ -4,7 +4,7 @@
 
 - [x] member app, init
 - [x] member app manifests for A, C, S
-- [ ] member app with BAD_LISTENER flag
+- [x] member app with BAD_LISTENER flag
 - [x] member app manifest for C, no listen
 
 - [x] cff info app with assets
@@ -13,11 +13,9 @@
 - [x] cff info app with basic web page showing assets, text, metadata
 - [x] cff info app with styling
 - [x] cff info app manifest with basic config
-- [ ] cff info app with parametrized styling
-- [ ] cff info app manifest with fancy styling
-
-
-- [ ] cff info app does something about 503's from local envoy?
+- [x] cff info app with parametrized styling
+- [x] cff info app manifest with fancy styling
+- [x] cff info app retries on errors (including 503s from local envoy)
 
 
 ### cff info app
@@ -75,8 +73,19 @@ cf map-route member-swarna istio.geordi.malm.co -n member-swarna
 cf add-network-policy cff-info-v1 --destination-app member-swarna --protocol tcp --port 8080
 
 cf remove-network-policy cff-info-v1 --destination-app member-chip --protocol tcp --port 8080
+cf add-network-policy cff-info-v1 --destination-app member-chip --protocol tcp --port 8080
 
 cf set-env member-chip BAD_LISTENER true
+cf rs member-chip
 
 cf unset-env member-chip BAD_LISTENER
+cf rs member-chip
+
+cf push -f manifests/cff-info-v2.yml
+cf map-route cff-info-v2 istio.geordi.malm.co -n cff-info
+cf map-route cff-info-v1 geordi.malm.co -n cff-info
+
+cf add-network-policy cff-info-v2 --destination-app member-abby --protocol tcp --port 8080
+cf add-network-policy cff-info-v2 --destination-app member-chip --protocol tcp --port 8080
+cf add-network-policy cff-info-v2 --destination-app member-swarna --protocol tcp --port 8080
 ```

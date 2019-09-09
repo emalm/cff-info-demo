@@ -18,7 +18,8 @@ body {
   padding: 1em 10%; 
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
   background-color: #c0d8f0;
-  {{if .Style.Fancy}}background-image: url("/photos/cf-summit-eu-background.jpg");{{end}}
+  {{if .Style.Fancy}}background-image: url("/photos/cf-summit-eu-background.jpg");
+  color: white;{{end}}
 }
 
 h1 {

@@ -82,12 +82,13 @@ func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 	end := time.Now()
 
 	metadata := Metadata{
-		Duration:    end.Sub(start),
+		Duration:    end.Sub(start).Round(time.Millisecond),
 		URL:         f.url,
 		NumRequests: numRequests,
 	}
 
 	if err != nil {
+		logger.Error("request-failed", err, lager.Data{"metadata": metadata})
 		return FetchResult{Metadata: metadata}, err
 	}
 
@@ -126,7 +127,8 @@ func RequestMember(logger lager.Logger, url string) (*http.Response, int, error)
 		time.Sleep(100 * time.Duration(numRequests-1) * time.Millisecond)
 
 		// via https://stackoverflow.com/questions/49384786/how-to-capture-ip-address-of-server-providing-http-response
-		request, err := http.NewRequest("GET", url, nil)
+		var request *http.Request
+		request, err = http.NewRequest("GET", url, nil)
 		if err != nil {
 			continue
 		}
@@ -164,5 +166,6 @@ func RequestMember(logger lager.Logger, url string) (*http.Response, int, error)
 		break
 	}
 
+	logger.Info("finished", lager.Data{"num": numRequests, "error": err})
 	return response, numRequests, err
 }
