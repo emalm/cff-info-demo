@@ -56,6 +56,7 @@ cf push -f manifests/member-abby.yml
 cf map-route member-abby istio.apps.internal -n members
 cf map-route member-abby istio.geordi.malm.co -n members
 cf map-route member-abby istio.geordi.malm.co -n member-abby
+cf map-route member-abby geordi.malm.co -n member-abby
 cf add-network-policy cff-info-v1 --destination-app member-abby --protocol tcp --port 8080
 
 cf push -f manifests/member-chip.yml
@@ -70,7 +71,9 @@ cf map-route member-swarna istio.geordi.malm.co -n members
 cf map-route member-swarna istio.geordi.malm.co -n member-swarna
 cf add-network-policy cff-info-v1 --destination-app member-swarna --protocol tcp --port 8080
 
-
 cf remove-network-policy cff-info-v1 --destination-app member-chip --protocol tcp --port 8080
 
+cf set-env member-chip BAD_LISTENER true
+
+cf unset-env member-chip BAD_LISTENER
 ```

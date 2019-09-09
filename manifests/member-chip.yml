@@ -2,13 +2,31 @@
 applications:
 - name: member-chip
   memory: 128M
-  no-route: true
   path: ../member-app/bin/linux
   buildpacks: 
   - binary_buildpack
   command: ./member-app
+  health-check-type: process
   env:
     MEMBER_ID: chip
     MEMBER_NAME: "Chip Childers"
     MEMBER_TITLE: "CTO"
-    MEMBER_BIO: "Cool guy"
+    MEMBER_BIO: >
+      Chip has spent 20 years in large-scale computing
+      and open source software. In 2015, he became
+      the co-founder of the Cloud Foundry Foundation
+      as Technology Chief of Staff. He was the first
+      VP of Apache Cloudstack, a platform he helped
+      drive while leading Enterprise Cloud Services
+      at SunGard and then as VP Product Strategy at
+      Cumulogic. Prior to SunGard, he led the rebuild
+      of mission-critical applications for
+      organizations including IRS.gov, USMint.gov,
+      Merrill Lynch and SEI Investments.
+      Chip is an experienced speaker at events
+      like OSCON, LinuxCon North America, LC Japan,
+      LC EU, ApacheCon, O’Reilly Software Architecture
+      Conference, and many more. In his free time,
+      Chip loves trail hiking with his black lab,
+      sailing catamarans and sunfish, and trying
+      to keep up with his young daughter.

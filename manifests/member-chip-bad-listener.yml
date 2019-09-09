@@ -2,7 +2,6 @@
 applications:
 - name: member-chip
   memory: 128M
-  no-route: true
   path: ../member-app/bin/linux
   buildpacks: 
   - binary_buildpack
