@@ -33,7 +33,7 @@ type Response struct {
 type Metadata struct {
 	Duration    time.Duration
 	URL         string
-	Addr        string
+	ResolvedIP  string
 	ServerIP    string
 	NumRequests int
 }
@@ -58,9 +58,9 @@ func (f LocalMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 	}
 
 	metadata := Metadata{
-		Duration: 1 * time.Millisecond,
-		URL:      "<local>",
-		Addr:     "127.0.0.1:8080",
+		Duration:   1 * time.Millisecond,
+		URL:        "<local>",
+		ResolvedIP: "127.0.0.1",
 	}
 
 	return FetchResult{Member: member, Metadata: metadata}, nil
@@ -78,14 +78,10 @@ func NewRemoteMemberFetcher(url string) MemberFetcher {
 
 func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 	start := time.Now()
-	resp, numRequests, err := RequestMember(logger, f.url)
+	resp, metadata, err := RequestMember(logger, f.url)
 	end := time.Now()
 
-	metadata := Metadata{
-		Duration:    end.Sub(start).Round(time.Millisecond),
-		URL:         f.url,
-		NumRequests: numRequests,
-	}
+	metadata.Duration = end.Sub(start).Round(time.Millisecond)
 
 	if err != nil {
 		logger.Error("request-failed", err, lager.Data{"metadata": metadata})
@@ -94,15 +90,13 @@ func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 
 	defer resp.Body.Close()
 
-	metadata.Addr = resp.Request.RemoteAddr
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("readall-failed", err)
 		return FetchResult{}, err
 	}
 
-	logger.Info("response", lager.Data{"body": string(body), "duration": metadata.Duration, "headers": resp.Header, "request-addr": resp.Request.RemoteAddr})
+	logger.Info("response", lager.Data{"body": string(body), "headers": resp.Header, "metadata": metadata})
 
 	var response Response
 
@@ -117,22 +111,19 @@ func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 	return FetchResult{Member: response.Member, Metadata: metadata}, nil
 }
 
-func RequestMember(logger lager.Logger, url string) (*http.Response, int, error) {
+func RequestMember(logger lager.Logger, url string) (*http.Response, Metadata, error) {
+	metadata := Metadata{URL: url}
+
 	var response *http.Response
 	var err error
-	numRequests := 1
 
-	for ; numRequests <= maxRequests; numRequests++ {
+	for numRequests := 1; numRequests <= maxRequests; numRequests++ {
+		metadata.NumRequests = numRequests
+
 		// cooling off time after failures
 		time.Sleep(100 * time.Duration(numRequests-1) * time.Millisecond)
 
 		// via https://stackoverflow.com/questions/49384786/how-to-capture-ip-address-of-server-providing-http-response
-		var request *http.Request
-		request, err = http.NewRequest("GET", url, nil)
-		if err != nil {
-			continue
-		}
-
 		client := &http.Client{
 			Transport: &http.Transport{
 				DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
@@ -140,17 +131,20 @@ func RequestMember(logger lager.Logger, url string) (*http.Response, int, error)
 					if err != nil {
 						return conn, err
 					}
-					request.RemoteAddr = conn.RemoteAddr().String()
+
+					host, _, err := net.SplitHostPort(conn.RemoteAddr().String())
+					if err != nil {
+						return conn, err
+					}
+
+					metadata.ResolvedIP = host
+
 					return conn, err
 				},
 			},
-			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-				request = req
-				return nil
-			},
 		}
 
-		response, err = client.Do(request)
+		response, err = client.Get(url)
 		if err != nil {
 			logger.Error("failed-request", err, lager.Data{"num": numRequests})
 			continue
@@ -166,6 +160,6 @@ func RequestMember(logger lager.Logger, url string) (*http.Response, int, error)
 		break
 	}
 
-	logger.Info("finished", lager.Data{"num": numRequests, "error": err})
-	return response, numRequests, err
+	logger.Info("finished", lager.Data{"metadata": metadata, "error": err})
+	return response, metadata, err
 }

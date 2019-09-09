@@ -71,7 +71,7 @@ p {
 	 <tr><td># Requests</td><td>{{.Metadata.NumRequests}}</td></tr>
 	 <tr><td>Duration</td><td>{{.Metadata.Duration}}</td></tr>
 	 <tr><td>Member URL</td><td>{{.Metadata.URL}}</td></tr>
-	 <tr><td>Connected Address</td><td>{{.Metadata.Addr}}</td></tr>
+	 <tr><td>Resolved IP</td><td>{{.Metadata.ResolvedIP}}</td></tr>
 	 <tr><td>Server IP</td><td>{{.Metadata.ServerIP}}</td></tr>
 	</table> 
 </div>

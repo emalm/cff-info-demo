@@ -52,6 +52,7 @@ make && MEMBER_URL=http://localhost:8081 ./cff-info-app.darwin
 ```
 cf push -f manifests/cff-info-v1.yml
 cf map-route cff-info-v1 istio.geordi.malm.co -n cff-info
+cf map-route cff-info-v1 geordi.malm.co -n cff-info-v1
 
 cf push -f manifests/member-abby.yml
 cf map-route member-abby istio.apps.internal -n members
@@ -83,7 +84,6 @@ cf rs member-chip
 
 cf push -f manifests/cff-info-v2.yml
 cf map-route cff-info-v2 istio.geordi.malm.co -n cff-info
-cf map-route cff-info-v1 geordi.malm.co -n cff-info
 
 cf add-network-policy cff-info-v2 --destination-app member-abby --protocol tcp --port 8080
 cf add-network-policy cff-info-v2 --destination-app member-chip --protocol tcp --port 8080
