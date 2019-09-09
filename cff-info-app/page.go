@@ -12,10 +12,13 @@ const pageTemplate = `<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <title>CFF Staff Info: Randomized!</title>
   <style>
 body {
   padding: 1em 10%; 
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  background-color: #c0d8f0;
+  {{if .Style.Fancy}}background-image: url("/photos/cf-summit-eu-background.jpg");{{end}}
 }
 
 h1 {
@@ -78,15 +81,31 @@ p {
 
 type PagePresenter struct {
 	template *template.Template
+	style    StyleData
 }
 
-func NewPagePresenter() *PagePresenter {
+func NewPagePresenter(style StyleData) *PagePresenter {
 	return &PagePresenter{
 		template: template.Must(template.New("page").Parse(pageTemplate)),
+		style:    style,
 	}
 }
 
-func (p *PagePresenter) WritePage(logger lager.Logger, w io.Writer, data FetchResult) error {
+type PageData struct {
+	FetchResult
+	Style StyleData
+}
+
+type StyleData struct {
+	Fancy bool
+}
+
+func (p *PagePresenter) WritePage(logger lager.Logger, w io.Writer, fetchData FetchResult) error {
+	data := PageData{
+		FetchResult: fetchData,
+		Style:       p.style,
+	}
+
 	buf := &bytes.Buffer{}
 
 	err := p.template.Execute(buf, data)

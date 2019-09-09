@@ -45,7 +45,8 @@ func main() {
 		fetcher = NewRemoteMemberFetcher(url)
 	}
 
-	infoHandler := NewRandomInfoHandler(logger, fetcher)
+	style := StyleData{Fancy: (os.Getenv("STYLE_FANCY") == "true")}
+	infoHandler := NewRandomInfoHandler(logger, fetcher, style)
 
 	handler, err := rata.NewRouter(Routes, rata.Handlers{
 		PhotosRoute:     stripped,
@@ -87,11 +88,11 @@ type randomInfoHandler struct {
 	presenter *PagePresenter
 }
 
-func NewRandomInfoHandler(logger lager.Logger, fetcher MemberFetcher) http.Handler {
+func NewRandomInfoHandler(logger lager.Logger, fetcher MemberFetcher, style StyleData) http.Handler {
 	return &randomInfoHandler{
 		logger:    logger.Session("random"),
 		fetcher:   fetcher,
-		presenter: NewPagePresenter(),
+		presenter: NewPagePresenter(style),
 	}
 }
 
