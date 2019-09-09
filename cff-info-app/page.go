@@ -15,26 +15,25 @@ const pageTemplate = `<!DOCTYPE html>
   <style>
 body {
   padding: 1em 10%; 
-}
-
-h1, h2 {
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
 }
 
 h1 {
 	font-size: 3.5em;
+	margin: 0.2em 0 0.4em;
 }
 
 h2 {
 	font-size: 2.5em;
+	margin: 0.5em 0;
+}
+
+p {
+	font-size: smaller;
 }
 
 .metadata {
 	font-family: "Lucida Console", Monaco, monospace;
-}
-
-.metadata ul {
-	list-style-type: none;
 }
 
 .metadata tr {
@@ -59,6 +58,7 @@ h2 {
   <img class="headshot" src="/photos/{{.Member.ID}}.png" alt="{{.Member.Name}}"/>
   <h1>{{.Member.Name}}</h1>
   <h2>{{.Member.Title}}</h2>
+  <p>{{.Member.Bio}}</p>
 
 <div class="metadata">
 	<h3>Request Metadata</h3>
