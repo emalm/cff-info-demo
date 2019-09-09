@@ -64,6 +64,7 @@ p {
 	<h3>Request Metadata</h3>
 
 	<table>
+	 <tr><td># Requests</td><td>{{.Metadata.NumRequests}}</td></tr>
 	 <tr><td>Duration</td><td>{{.Metadata.Duration}}</td></tr>
 	 <tr><td>Member URL</td><td>{{.Metadata.URL}}</td></tr>
 	 <tr><td>Connected Address</td><td>{{.Metadata.Addr}}</td></tr>

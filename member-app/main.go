@@ -55,7 +55,7 @@ func main() {
 	group := grouper.NewOrdered(os.Interrupt, members)
 
 	monitor := ifrit.Invoke(sigmon.New(group))
-	logger.Info("ready")
+	logger.Info("ready", lager.Data{"port": port})
 
 	err := <-monitor.Wait()
 	if err != nil {

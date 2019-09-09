@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -10,6 +11,12 @@ import (
 
 	"code.cloudfoundry.org/lager"
 )
+
+const (
+	maxRequests = 10
+)
+
+var ErrMemberServiceFailure error = errors.New("Member service failed to respond within retry limit")
 
 type Member struct {
 	ID    string `json:"id"`
@@ -24,10 +31,11 @@ type Response struct {
 }
 
 type Metadata struct {
-	Duration time.Duration
-	URL      string
-	Addr     string
-	ServerIP string
+	Duration    time.Duration
+	URL         string
+	Addr        string
+	ServerIP    string
+	NumRequests int
 }
 
 type FetchResult struct {
@@ -69,44 +77,23 @@ func NewRemoteMemberFetcher(url string) MemberFetcher {
 }
 
 func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
-	// via https://stackoverflow.com/questions/49384786/how-to-capture-ip-address-of-server-providing-http-response
-	request, err := http.NewRequest("GET", f.url, nil)
-	if err != nil {
-		return FetchResult{}, err
-	}
-
-	client := &http.Client{
-		Transport: &http.Transport{
-			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-				conn, err := net.Dial(network, addr)
-				if err != nil {
-					return conn, err
-				}
-				request.RemoteAddr = conn.RemoteAddr().String()
-				return conn, err
-			},
-		},
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			request = req
-			return nil
-		},
-	}
-
 	start := time.Now()
-	resp, err := client.Do(request)
+	resp, numRequests, err := RequestMember(logger, f.url)
 	end := time.Now()
 
+	metadata := Metadata{
+		Duration:    end.Sub(start),
+		URL:         f.url,
+		NumRequests: numRequests,
+	}
+
 	if err != nil {
-		return FetchResult{}, err
+		return FetchResult{Metadata: metadata}, err
 	}
 
 	defer resp.Body.Close()
 
-	metadata := Metadata{
-		Duration: end.Sub(start),
-		URL:      f.url,
-		Addr:     resp.Request.RemoteAddr,
-	}
+	metadata.Addr = resp.Request.RemoteAddr
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -127,4 +114,55 @@ func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 	metadata.ServerIP = response.IP
 
 	return FetchResult{Member: response.Member, Metadata: metadata}, nil
+}
+
+func RequestMember(logger lager.Logger, url string) (*http.Response, int, error) {
+	var response *http.Response
+	var err error
+	numRequests := 1
+
+	for ; numRequests <= maxRequests; numRequests++ {
+		// cooling off time after failures
+		time.Sleep(100 * time.Duration(numRequests-1) * time.Millisecond)
+
+		// via https://stackoverflow.com/questions/49384786/how-to-capture-ip-address-of-server-providing-http-response
+		request, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			continue
+		}
+
+		client := &http.Client{
+			Transport: &http.Transport{
+				DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+					conn, err := net.Dial(network, addr)
+					if err != nil {
+						return conn, err
+					}
+					request.RemoteAddr = conn.RemoteAddr().String()
+					return conn, err
+				},
+			},
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				request = req
+				return nil
+			},
+		}
+
+		response, err = client.Do(request)
+		if err != nil {
+			logger.Error("failed-request", err, lager.Data{"num": numRequests})
+			continue
+		}
+
+		if response.StatusCode != http.StatusOK {
+			logger.Error("failed-response-code", nil, lager.Data{"num": numRequests, "code": response.StatusCode})
+			err = ErrMemberServiceFailure
+			continue
+		}
+
+		logger.Info("response", lager.Data{"num": numRequests, "code": response.StatusCode})
+		break
+	}
+
+	return response, numRequests, err
 }

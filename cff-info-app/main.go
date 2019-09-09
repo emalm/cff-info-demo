@@ -4,7 +4,6 @@ import (
 	// "encoding/json"
 	"net/http"
 	"os"
-	"strconv"
 
 	"code.cloudfoundry.org/lager"
 
@@ -16,7 +15,7 @@ import (
 )
 
 const (
-	noTLSPort = 8080
+	defaultPort = "8080"
 
 	PhotosRoute = "Photos"
 	PhotosDir   = "photos"
@@ -57,12 +56,12 @@ func main() {
 		logger.Fatal("failed-to-construct-router", err)
 	}
 
-	plainHTTPPort := os.Getenv("PORT")
-	if plainHTTPPort == "" {
-		plainHTTPPort = strconv.Itoa(noTLSPort)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
 	}
 
-	plainHTTPServer := http_server.New("0.0.0.0:"+plainHTTPPort, handler)
+	plainHTTPServer := http_server.New("0.0.0.0:"+port, handler)
 
 	members := grouper.Members{
 		{"plain", plainHTTPServer},
@@ -71,7 +70,7 @@ func main() {
 	group := grouper.NewOrdered(os.Interrupt, members)
 
 	monitor := ifrit.Invoke(sigmon.New(group))
-	logger.Info("ready")
+	logger.Info("ready", lager.Data{"port": port})
 
 	err = <-monitor.Wait()
 	if err != nil {
@@ -97,21 +96,15 @@ func NewRandomInfoHandler(logger lager.Logger, fetcher MemberFetcher) http.Handl
 }
 
 func (h randomInfoHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	result, err := h.fetcher.Fetch(h.logger)
+	logger := h.logger.Session("request")
+
+	result, err := h.fetcher.Fetch(logger)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		h.logger.Error("failed-to-fetch-member", err)
 		return
 	}
 
-	// payload, err := json.Marshal(result)
-
-	// if err != nil {
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	h.logger.Error("failed-to-marshal-data", err)
-	// 	return
-	// }
-
 	w.WriteHeader(http.StatusOK)
-	h.presenter.WritePage(h.logger, w, result)
+	h.presenter.WritePage(logger, w, result)
 }
