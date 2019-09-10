@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+script_dir="$(cd $(dirname "$BASH_SOURCE[0]") && pwd)"
+
+
+# via cf curl /v3/apps?names=cff-info-v1 | jq -r .resources[0].guid
+app_guid_1="6f111577-11f6-472d-862d-eeba6773f6b0"
+
+# cf curl /v3/apps?names=cff-info-v2 | jq -r .resources[0].guid
+app_guid_2="150bdaac-8685-461d-a6e4-0363a38866bc"
+
+# cf curl /v3/domains?names=istio.geordi.malm.co | jq -r .resources[0].guid
+# cf curl /v3/routes?domain_guids=f70127aa-1970-4f3d-82c8-2e9427d11cfb\&hosts=cff-info | jq -r .resources[0].guid
+
+route_mapping_guid="f682a890-998e-40a0-937d-68e3c3c61b26"
+
+weight1="$1"
+weight2="$(( 100 - weight1 ))"
+
+patch_payload=$(jq \
+ -c \
+ -n \
+ -f "$script_dir/route-mapping-weight-template.json" \
+ --arg app1 "$app_guid_1" \
+ --arg app2 "$app_guid_2" \
+ --argjson weight1 "$weight1" \
+ --argjson weight2 "$weight2")
+
+cf curl "/v3/routes/$route_mapping_guid/destinations" \
+ -X PATCH \
+ -d "$patch_payload"

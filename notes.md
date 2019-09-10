@@ -88,4 +88,6 @@ cf map-route cff-info-v2 istio.geordi.malm.co -n cff-info
 cf add-network-policy cff-info-v2 --destination-app member-abby --protocol tcp --port 8080
 cf add-network-policy cff-info-v2 --destination-app member-chip --protocol tcp --port 8080
 cf add-network-policy cff-info-v2 --destination-app member-swarna --protocol tcp --port 8080
+
+cf unmap-route cff-info-v2 istio.geordi.malm.co -n cff-info
 ```

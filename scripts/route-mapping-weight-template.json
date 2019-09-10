@@ -1,0 +1,16 @@
+{
+  "destinations": [
+    {
+      "app": {
+        "guid": $app1
+      },
+      "weight": $weight1
+    },
+    {
+      "app": {
+        "guid": $app2
+      },
+      "weight": $weight2
+    }
+  ]
+}

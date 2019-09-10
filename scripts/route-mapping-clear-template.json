@@ -1,0 +1,9 @@
+{
+  "destinations": [
+    {
+      "app": {
+        "guid": $app1
+      }
+    }
+  ]
+}
