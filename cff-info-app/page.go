@@ -15,7 +15,7 @@ const pageTemplate = `<!DOCTYPE html>
   <title>CFF Staff Info: Randomized!</title>
   <style>
 body {
-  padding: 1em 10%; 
+  padding: 1em 5%;
   font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
   background-color: #c0d8f0;
   {{if .Style.Fancy}}background-image: url("/photos/cf-summit-eu-background.jpg");
@@ -40,8 +40,13 @@ p {
 	font-family: "Lucida Console", Monaco, monospace;
 }
 
+.metadata h3 {
+	margin: 2.5em 0 1em;
+}
+
 .metadata tr {
 	padding: 0.5em 0;
+	font-size: larger;
 }
 
 .metadata td:first-child {
@@ -54,7 +59,7 @@ p {
 	width: 40%;
 	padding: 0;
 	border: 2px solid gray;
-	margin: 0 2em;
+	margin: 0 2em 0 0;
 }
   </style>
 </head>
