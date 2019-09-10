@@ -21,9 +21,12 @@ const (
 	PhotosDir   = "photos"
 
 	RandomInfoRoute = "RandomInfo"
+
+	RootRoute = "Root"
 )
 
 var Routes = rata.Routes{
+	{Name: RootRoute, Method: "GET", Path: "/"},
 	{Name: PhotosRoute, Method: "GET", Path: "/photos/"},
 	{Name: RandomInfoRoute, Method: "GET", Path: "/random"},
 }
@@ -51,6 +54,7 @@ func main() {
 	handler, err := rata.NewRouter(Routes, rata.Handlers{
 		PhotosRoute:     stripped,
 		RandomInfoRoute: infoHandler,
+		RootRoute:       rootPageHandler{},
 	})
 
 	if err != nil {
