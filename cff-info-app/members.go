@@ -31,6 +31,7 @@ type Response struct {
 }
 
 type Metadata struct {
+	Timestamp   string
 	Duration    time.Duration
 	URL         string
 	ResolvedIP  string
@@ -81,6 +82,7 @@ func (f RemoteMemberFetcher) Fetch(logger lager.Logger) (FetchResult, error) {
 	resp, metadata, err := RequestMember(logger, f.url)
 	end := time.Now()
 
+	metadata.Timestamp = end.Format(time.RFC3339)
 	metadata.Duration = end.Sub(start).Round(time.Millisecond)
 
 	if err != nil {

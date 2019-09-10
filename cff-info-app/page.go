@@ -75,6 +75,7 @@ p {
 	<table>
 	 <tr><td># Requests</td><td>{{.Metadata.NumRequests}}</td></tr>
 	 <tr><td>Duration</td><td>{{.Metadata.Duration}}</td></tr>
+	 <tr><td>Timestamp</td><td>{{.Metadata.Timestamp}}</td></tr>
 	 <tr><td>Member URL</td><td>{{.Metadata.URL}}</td></tr>
 	 <tr><td>&minus;&gt; Resolved IP</td><td>{{.Metadata.ResolvedIP}}</td></tr>
 	 <tr><td>&minus;&gt; Server IP</td><td>{{.Metadata.ServerIP}}</td></tr>
