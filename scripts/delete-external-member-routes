@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+cf delete-route -f istio.geordi.malm.co -n members
+cf delete-route -f istio.geordi.malm.co -n member-abby
+cf delete-route -f istio.geordi.malm.co -n member-chip
+cf delete-route -f istio.geordi.malm.co -n member-swarna
+
+cf delete-route -f geordi.malm.co -n member-abby
+cf delete-route -f geordi.malm.co -n member-chip
+cf delete-route -f geordi.malm.co -n member-swarna

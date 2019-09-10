@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+for n in abby chip swarna;
+do
+  cf map-route "member-$n" istio.geordi.malm.co -n members
+  cf map-route "member-$n" istio.geordi.malm.co -n "member-$n"
+  cf map-route "member-$n" geordi.malm.co -n "member-$n"
+done
