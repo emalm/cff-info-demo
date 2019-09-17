@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 
+set -e
+set -x
+
 script_dir="$(cd $(dirname "$BASH_SOURCE[0]") && pwd)"
 
+app_guid_1="$(cf curl /v3/apps?names=cff-info-v1 | jq -r .resources[0].guid)"
+app_guid_2="$(cf curl /v3/apps?names=cff-info-v2 | jq -r .resources[0].guid)"
 
-# via cf curl /v3/apps?names=cff-info-v1 | jq -r .resources[0].guid
-app_guid_1="6f111577-11f6-472d-862d-eeba6773f6b0"
+# domain of base istio ingress domain
+domain_guid="$(cf curl /v3/domains?names=istio.${CF_DOMAIN} | jq -r .resources[0].guid)"
 
-route_mapping_guid="f682a890-998e-40a0-937d-68e3c3c61b26"
+route_mapping_guid="$(cf curl /v3/routes?domain_guids=${domain_guid}\&hosts=cff-info | jq -r .resources)"
 
 patch_payload=$(jq \
  -c \
