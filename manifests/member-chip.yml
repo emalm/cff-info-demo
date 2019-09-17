@@ -7,6 +7,8 @@ applications:
   - binary_buildpack
   command: ./member-app
   health-check-type: process
+  routes:
+  - members.istio.apps.internal
   env:
     MEMBER_ID: chip
     MEMBER_NAME: "Chip Childers"

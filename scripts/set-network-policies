@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+for i in 1 2;
+do
+  for n in abby chip swarna;
+  do
+    cf add-network-policy cff-info-v$i --destination-app member-$n --protocol tcp --port 8080
+  done
+done

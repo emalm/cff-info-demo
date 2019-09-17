@@ -6,6 +6,8 @@ applications:
   buildpacks: 
   - binary_buildpack
   command: ./member-app
+  routes:
+  - members.istio.apps.internal
   env:
     MEMBER_ID: swarna
     MEMBER_NAME: "Swarna Podila"
