@@ -1,5 +1,8 @@
 # cff-info-demo
 
+A small two-tier web app to illustrate some of the service-mesh routing and networking features in the Cloud Foundry Application Runtime (CFAR).
+
+
 ## Prerequisites
 
 - Install the `cf` CLI.
